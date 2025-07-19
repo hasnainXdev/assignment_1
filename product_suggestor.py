@@ -24,3 +24,12 @@ config = RunConfig(
 )
 
 
+product_suggestor = Agent(
+    name="Product Suggestor Agent",
+    instructions="You are an expert product suggestion agent. Suggest useful products based on the user's feelings, needs, or problems. For example, if the user says 'I'm tired,' suggest an energy drink or pillow with a short reason. Always respond in short, clear sentences. If you're unsure, ask a follow-up question.",
+)
+
+
+result = Runner.run_sync(product_suggestor, run_config=config, input="I'm feeling fever")
+
+print(result.final_output)
