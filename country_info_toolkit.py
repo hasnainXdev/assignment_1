@@ -48,43 +48,55 @@ get_country_population = Agent(
         Do not include additional text, explanations.""",
 )
 
+
+# Using `as_tool`
+
+get_country_capital_as_tool = get_country_capital.as_tool(
+    tool_name="get_country_capital",
+    tool_description="Retrieves the capital city of the given country as a single string.",
+)
+
+get_country_language_as_tool = get_country_language.as_tool(
+    tool_name="get_country_language",
+    tool_description="Retrieves the primary national language of the given country as a single string.",
+)
+
+
+get_country_population_as_tool = get_country_population.as_tool(
+    tool_name="get_country_population",
+    tool_description="Retrieves the population of the given country as a number.",
+)
+
 triage_agent = Agent(
     name="Triage Agent",
-    instructions=(
-        """You are a smart Country Info Toolkit. When given a country name
-        
+    instructions="""You are a smart Country Info Assistant. When given a country name
         important!
-        
         To get the capital of country, use the tool `get_country_capital`
         To get the language of country, use the tool `get_country_language`
         To get the population of country, use the tool `get_country_population`
         
-        """
-    ),
+        """,
     tools=[
-        get_country_capital.as_tool(
-            tool_name="get_country_capital",
-            tool_description="Retrieves the capital city of the given country as a single string.",
-        ),
-        get_country_language.as_tool(
-            tool_name="get_country_language",
-            tool_description="Retrieves the primary national language of the given country as a single string.",
-        ),
-        get_country_population.as_tool(
-            tool_name="get_country_population",
-            tool_description="Retrieves the population of the given country as a number.",
-        ),
+        get_country_capital_as_tool,
+        get_country_language_as_tool,
+        get_country_population_as_tool,
     ],
 )
 
 
-async def main():
-    result = await Runner.run(
-        triage_agent,
-        run_config=config,
-        input="what is the capital of pakistan including population and language",
-    )
-    print(result.final_output)
+# async def main():
+#     result = await Runner.run(
+#         triage_agent,
+#         run_config=config,
+#         input="what is the capital of pakistan including population and language",
+#     )
+# print(result.final_output)
+result = Runner.run_sync(
+    triage_agent,
+    run_config=config,
+    input="what is the capital of pakistan including population and language",
+)
+print(result.final_output)
 
 
-asyncio.run(main())
+# asyncio.run(main())
