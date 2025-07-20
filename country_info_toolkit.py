@@ -68,9 +68,12 @@ get_country_population_as_tool = get_country_population.as_tool(
 )
 
 triage_agent = Agent(
-    name="Triage Agent",
+    name="Assistant",
     instructions="""You are a smart Country Info Assistant. When given a country name
-        important!
+        you will use the tools to get the capital, language, and population of that country.
+        
+        You will use the tools provided to you to answer the question.
+        
         To get the capital of country, use the tool `get_country_capital`
         To get the language of country, use the tool `get_country_language`
         To get the population of country, use the tool `get_country_population`
@@ -84,19 +87,14 @@ triage_agent = Agent(
 )
 
 
-# async def main():
-#     result = await Runner.run(
-#         triage_agent,
-#         run_config=config,
-#         input="what is the capital of pakistan including population and language",
-#     )
-# print(result.final_output)
-result = Runner.run_sync(
-    triage_agent,
-    run_config=config,
-    input="what is the capital of pakistan including population and language",
-)
-print(result.final_output)
+async def main():
+    result = await Runner.run(
+        triage_agent,
+        run_config=config,
+        input="what is the capital of pakistan including language and population?",
+    )
+
+    print(result.final_output)
 
 
-# asyncio.run(main())
+asyncio.run(main())
