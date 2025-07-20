@@ -1,5 +1,6 @@
 from agents import Agent, OpenAIChatCompletionsModel, RunConfig, Runner, function_tool
 from openai import AsyncOpenAI
+import asyncio
 import os
 from dotenv import load_dotenv
 
@@ -23,49 +24,67 @@ config = RunConfig(
     tracing_disabled=True,
 )
 
-get_contry_capital = Agent(
+get_country_capital = Agent(
     name="Get Country Capital Agent",
-    instructions="You are an expert country capital finder. Answer only with the capital of the given country.",
-    run_config=config,
+    instructions="""You are an expert at finding the capital city of a given country. When provided with a country name, 
+        return only the name of the capital city as a single string (e.g., 'Islamabad' for Pakistan).
+        Do not include additional text, explanations.""",
 )
 
 get_country_language = Agent(
     name="Get Country Language Agent",
-    instructions="You are an expert country language finder. Answer only with the national language of the given country.",
-    run_config=config,
+    instructions="""
+        You are an expert at identifying the national language of a given country. When provided with a country name,
+        return only the name of the primary national language as a single string (e.g., 'Urdu' for Pakistan). 
+        Do not include additional text, explanations.
+        """,
 )
 
 get_country_population = Agent(
     name="Get Country Population Agent",
-    instructions="You are an expert country population finder. Answer only with the population of the given country.",
-    run_config=config,
+    instructions="""
+    You are an expert at retrieving the population of a given country. When provided with a country name,
+        return only the population as a number (e.g., '220 million' for Pakistan). 
+        Do not include additional text, explanations.""",
 )
 
 triage_agent = Agent(
     name="Triage Agent",
     instructions=(
-        "You are a smart assistant. When given a country name, use all tools to fetch its country capital, national language, and population. Summarize the info clearly. never guess only use tools"
+        """You are a smart Country Info Toolkit. When given a country name
+        
+        important!
+        
+        To get the capital of country, use the tool `get_country_capital`
+        To get the language of country, use the tool `get_country_language`
+        To get the population of country, use the tool `get_country_population`
+        
+        """
     ),
     tools=[
-        get_contry_capital.as_tool(
-            tool_name="get_contry_capital",
-            tool_description="get country capital",
+        get_country_capital.as_tool(
+            tool_name="get_country_capital",
+            tool_description="Retrieves the capital city of the given country as a single string.",
         ),
         get_country_language.as_tool(
             tool_name="get_country_language",
-            tool_description="get country language",
+            tool_description="Retrieves the primary national language of the given country as a single string.",
         ),
         get_country_population.as_tool(
             tool_name="get_country_population",
-            tool_description="get country population",
+            tool_description="Retrieves the population of the given country as a number.",
         ),
     ],
 )
 
-result = Runner.run_sync(
-    triage_agent,
-    run_config=config,
-    input="What is the capital of pakistan including population and language",
-)
 
-print(result.final_output)
+async def main():
+    result = await Runner.run(
+        triage_agent,
+        run_config=config,
+        input="what is the capital of pakistan including population and language",
+    )
+    print(result.final_output)
+
+
+asyncio.run(main())
